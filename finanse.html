@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finanse</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Mój Portfel</h1>
+        <nav>
+            <a href="profile.html">Profil</a> |
+            <a href="dashboard.html">Kalendarz</a> | 
+            <a href="meals.html">Posiłki</a> |
+            <a href="index.html">Wyloguj się</a>
+        </nav>
+    </header>
+
+    <main class="finance-container">
+
+        <div class="balance-box">
+            <h2>Twoje saldo</h2>
+            <h1 id="balance">0.00 PLN</h1>
+            <div class="summary">
+                <div class="income-box">
+                    <h4>Przychody</h4>
+                    <p id="money-plus" class="money plus">+0.00</p>
+                </div>
+                <div class="expense-box">
+                    <h4>Wydatki</h4>
+                    <p id="money-minus" class="money minus">-0.00</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="transaction-form">
+            <h3>Dodaj transakcję</h3>
+            <label>Opis</label>
+            <input type="text" id="text" placeholder="np. Wypłata, Rachunek za prąd">
+
+            <label>Kwota (użyj minusa dla wydatków, np. -50)</label>
+            <input type="number" id="amount" placeholder="0">
+
+            <button id="add-transaction-btn">Dodaj transakcję</button>
+        </div>
+
+        <div class="history-section">
+            <h3>Historia</h3>
+            <ul id="list" class="transaction-list">
+
+            </ul>
+        </div>
+    </main>
+
+    <script src="finance.js"></script>
+</body>
+</html>

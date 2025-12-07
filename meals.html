@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planer Posiłków</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Planer Posiłków</h1>
+        <nav>
+            <a href="profile.html">Profil</a> |
+            <a href="dashboard.html">Kalendarz</a> |
+            <a href="finanse.html">Finanse</a> |
+            <a href="index.html">Wyloguj się</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="controls">
+            <button id="save-meals-btn">Zapisz cały tydzień</button>
+            <button id="clear-meals-btn" style="background-color: #ff6b6b;">Wyczyść wszystko</button>
+        </div>
+
+        <div class="meals-container">
+
+        </div>
+
+        <section class="shopping-section">
+            <h2>Lista zakupów</h2>
+            <div class="input-group">
+                <input type="text" id="shop-input" placeholder="Co trzeba kupić? np. Masło">
+                <button id="add-shop-btn">Dodaj</button>
+            </div>
+
+            <ul id="shopping-list"></ul>
+        </section>
+    </main>
+
+    <script src="meals.js"></script>
+</body>
+</html>

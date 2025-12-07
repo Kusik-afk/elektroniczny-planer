@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Twój Profil</h1>
+        <nav>
+            <a href="dashboard.html">Kalendarz</a> | 
+            <a href="meals.html">Posiłki</a> |
+            <a href="finance.html">Finanse</a> |
+            <a href="index.html">Wyloguj się</a>
+        </nav>
+    </header>
+
+    <main class="profile-container">
+
+        <div class="profile-card">
+            <div class="avatar-wrapper">
+                <img src="https://via.placeholder.com/150" id="profile-pic" alt="Zdjęcie profilowe">
+                <input type="file" id="file-upload" accept="image/*">
+            </div>
+            <h2 id="display-name">Użytkownik</h2>
+            <p id="display-bio">Brak opisu</p>
+        </div>
+
+        <div class="profile-details">
+
+            <section class="edit-section">
+                <h3>Edytuj dane</h3>
+                <label>Twoje imię:</label>
+                <input type="text" id="name-input" placeholder="Wpisz imię">
+
+                <label>O sobie:</label>
+                <textarea id="bio-input" placeholder="Napisz coś o sobie..."></textarea>
+
+                <button id="save-profile-btn">Zapisz zmiany</button>
+            </section>
+
+            <section class="stats-section">
+                <h3>Twoja aktywność</h3>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <span id="stat-tasks">0</span>
+                        <p>Zadań w kalendarzu</p>
+                    </div>
+                    <div class="stat-box">
+                        <span id="stat-balance">0 PLN</span>
+                        <p>Aktualne saldo</p>
+                    </div>
+                    <div class="stat-box">
+                        <span id="stat-shopping">0</span>
+                        <p>Rzeczy do kupienia</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+    </main>
+
+    <script src="profile.js"></script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twój Planer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Mój Planer: Grudzień</h1>
+        <nav>
+            <a href="profile.html">Profil</a> |
+            <a href="meals.html">Posiłki</a> |
+            <a href="finanse.html">Finanse</a> |
+            <a href="index.html">Wyloguj się</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="weekdays">
+            <div>Pon</div><div>Wt</div><div>Śr</div><div>Czw</div><div>Pt</div><div>Sob</div><div>Nd</div>
+        </div>
+
+        <div id="calendar" class="calendar-grid"></div>
+    </main>
+
+    <div id="modal-overlay" class="modal-overlay">
+
+        <div class="modal">
+            <span class="close-btn">&times;</span> <h2>Dodaj wpis</h2>
+            <p id="selected-date">Dzień: </p>
+
+            <textarea id="task-input" placeholder="Co planujesz? Np. Trening 0 18:00"></textarea>
+
+            <button id="save-btn">Zapisz</button>
+        </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>

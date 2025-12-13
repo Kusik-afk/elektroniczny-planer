@@ -4,6 +4,9 @@ const express = require('express');
 const mongoose = require('mongoose');//importujemy Mongoose
 const path = require('path');
 const User = require('./models/User');
+const bcrypt = require('bcryptjs');
+const { userInfo } = require('os');
+const { error } = require('console');
 
 //2. Tworzymy aplikację
 const app = express();
@@ -35,10 +38,14 @@ app.post('/api/register', async (req, res) => {
             return res.status(400).json({ message: "Taki email jest już zajęty!" });
         }
 
-        // 3. Tworzymy nowego użytkownika 
+        //3. Hashowanie hasła
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        // Tworzymy nowego użytkownika z zaszyfrowanym hasłem
         const newUser = new User({
             email: email,
-            password: password
+            password: hashedPassword//tu wrzucamy krzaki zamiast tekstu
         });
 
         // 4. Zapisujemy w bazie
@@ -48,6 +55,32 @@ app.post('/api/register', async (req, res) => {
         res.status(201).json({ message: "Rejestracja udana! Możesz się zalogować." });
 
     } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Błąd serwera" });
+    }
+});
+
+//Endpoint logowania
+app.post('/api/login', async (req, res) => {
+    const { email, password } = req.body;
+
+    try {
+        //1. Szukamy użytkownika po emailu
+        const user = await User.findOne({ email: email });
+        if (!user) {
+            return res.status(400).json({ message: "Nieprawidłowy email lub hasło" });
+        }
+
+        //2. Sprawdzamy hasło
+        const isMatch = await bcrypt.compare(password, user.password);
+
+        if(!isMatch) {
+            return res.status(400).json({ message: "Nieprawidłowy email lub hasło" })
+        }
+
+        //3. Sukces
+        res.json({message: "Zalogowano pomyślnie!", userId: user._id, name: user.name });
+    } catch {
         console.error(error);
         res.status(500).json({ message: "Błąd serwera" });
     }

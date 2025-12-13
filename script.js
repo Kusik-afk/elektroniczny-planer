@@ -1,58 +1,59 @@
 //const loginForm = document.querySelector("form");
-const emailInput = document.querySelector("input[type='text']");
-const passwordInput = document.querySelector("input[type='password']");
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
+const loginBtn = document.getElementById("login-btn");
 const registerBtn = document.getElementById("register-btn");
 
+//Funkcja pomocnicza do wysyłania danych
+async function sendData(url, data) {
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    });
+    return await response.json();
+}
+
+//1. Obsługa rejestracji
 registerBtn.addEventListener("click", async () => {
     const email = emailInput.value;
     const password = passwordInput.value;
 
-    if(!email || !password) {
-        alert("Wpisz email i hasło!");
-        return;
-    }
+    const result = await sendData('/api/register', { email, password });
 
-    // WYSYŁAMY DANE DO NASZEGO SERWERA
+    alert(result.message);//rejestracja udana lub błąd
+});
+
+//2. Obsługa logowania
+loginBtn.addEventListener("click", async () => {
+    const email = emailInput.value;
+    const password = passwordInput.value;
+
+    //Wysyłamy prośbę o logowanie
     try {
-        const response = await fetch('/api/register', {
+        const response = await fetch('/api/login', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json' // Mówimy serwerowi: wysyłam JSON
-            },
-            body: JSON.stringify({ 
-                email: email, 
-                password: password 
-            })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
         });
 
-        // Odbieramy odpowiedź z serwera
         const data = await response.json();
 
-        if (response.ok) {
-            alert("Sukces: " + data.message);
-            // Tu można przekierować do logowania
+        if(response.ok) {
+            //Sukces
+            alert("Witaj " + (data.name || "użytkowniku") + "!");
+
+            //Zapisujemy ID uzytkownika w LocalStorage, żeby wiedzieć, że jest zalogowany
+            localStorage.setItem("userID", data.userId);
+
+            //Przekierowanie do planera
+            window.location.href = "dashboard.html";
         } else {
+            //Błąd
             alert("Błąd: " + data.message);
         }
-
     } catch (error) {
-        console.error("Błąd sieci:", error);
-        alert("Nie udało się połączyć z serwerem.");
+        console.error(error);
+        alert("Błąd połączenia");
     }
-});
-// loginForm.addEventListener("submit", function(event) {
-//     //1. Zatrzymujemy domyślne odświeżenie strony
-//     event.preventDefault();
-
-//     //2. Pobieramy to, co wpisał użytkownik
-//     const email = emailInput.value;
-//     const password = passwordInput.value;
-
-//     //3. Sprawdzamy, czy dane są poprawne
-//     if (email === "admin" && password === "tajne") {
-//         alert("Logowanie udane!");
-//         window.location.href = "dashboard.html";
-//     } else {
-//         alert("Błąd! Niepoprawny email lub hasło.");
-//     }
-// });
+})

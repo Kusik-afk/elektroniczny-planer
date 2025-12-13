@@ -7,6 +7,7 @@ const User = require('./models/User');
 const bcrypt = require('bcryptjs');
 const { userInfo } = require('os');
 const { error } = require('console');
+const Task = require('./models/Task');
 
 //2. Tworzymy aplikację
 const app = express();
@@ -42,13 +43,12 @@ app.post('/api/register', async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        // Tworzymy nowego użytkownika z zaszyfrowanym hasłem
+        // 4. Tworzymy użytkownika z ZASZYFROWANYM hasłem
         const newUser = new User({
             email: email,
-            password: hashedPassword//tu wrzucamy krzaki zamiast tekstu
+            password: hashedPassword // Tu wrzucamy krzaki zamiast tekstu
         });
 
-        // 4. Zapisujemy w bazie
         await newUser.save();
 
         // 5. Odsyłamy sukces
@@ -60,29 +60,66 @@ app.post('/api/register', async (req, res) => {
     }
 });
 
-//Endpoint logowania
+// Endpoint Logowania
 app.post('/api/login', async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        //1. Szukamy użytkownika po emailu
+        // 1. Szukamy użytkownika po emailu
         const user = await User.findOne({ email: email });
         if (!user) {
             return res.status(400).json({ message: "Nieprawidłowy email lub hasło" });
         }
 
-        //2. Sprawdzamy hasło
+        // 2. Sprawdzamy hasło 
         const isMatch = await bcrypt.compare(password, user.password);
-
-        if(!isMatch) {
-            return res.status(400).json({ message: "Nieprawidłowy email lub hasło" })
+        
+        if (!isMatch) {
+            return res.status(400).json({ message: "Nieprawidłowy email lub hasło" });
         }
 
-        //3. Sukces
-        res.json({message: "Zalogowano pomyślnie!", userId: user._id, name: user.name });
-    } catch {
+        // 3. Sukces!
+        res.json({ message: "Zalogowano pomyślnie!", userId: user._id, name: user.name });
+
+    } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Błąd serwera" });
+    }
+});
+
+//API ZADAŃ
+
+// 1. Zapisywanie nowego zadania 
+app.post('/api/tasks', async (req, res) => {
+    const { userId, day, text } = req.body;
+
+    try {
+        const newTask = new Task({
+            userId: userId,
+            day: day,
+            text: text
+        });
+        
+        await newTask.save(); // Zapis do MongoDB
+        res.status(201).json(newTask); // Odsyłamy zapisane zadanie do frontendu
+
+    } catch (error) {
+        res.status(500).json({ message: "Błąd zapisu" });
+    }
+});
+
+// 2. Pobieranie zadań konkretnego użytkownika 
+app.get('/api/tasks/:userId', async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        
+        // Znajdź w bazie WSZYSTKIE zadania, które mają ten userId
+        const tasks = await Task.find({ userId: userId });
+        
+        res.json(tasks); // Wyślij listę do frontendu
+
+    } catch (error) {
+        res.status(500).json({ message: "Błąd pobierania" });
     }
 });
 

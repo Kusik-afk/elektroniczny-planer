@@ -1,46 +1,54 @@
-const calendarContainer = document.getElementById("calendar");//nasz grid
-const modalOverlay = document.getElementById("modal-overlay");//nasze całe przyciemnione okienko
-const closeBtn = document.querySelector(".close-btn");//span krzyżyka
-const saveBtn = document.getElementById("save-btn");//button zapisz
-const taskInput = document.getElementById("task-input");//textarea wpisu
-const dateDisplay = document.getElementById("selected-date");//Dzień nr..
+const calendarContainer = document.getElementById("calendar");
+const modalOverlay = document.getElementById("modal-overlay");
+const closeBtn = document.querySelector(".close-btn");
+const saveBtn = document.getElementById("save-btn");
+const taskInput = document.getElementById("task-input");
+const dateDisplay = document.getElementById("selected-date");
 
 const totalDays = 31;
-let selectedDayNumber = null; // Tu będziemy trzymać numer klikniętego dnia
+let selectedDayNumber = null;
 
-// 1. WCZYTANIE DANYCH
-let tasksData = JSON.parse(localStorage.getItem("plannerData")) || {};
+// Pobieramy ID zalogowanego użytkownika 
+const currentUserId = localStorage.getItem("userId");
 
-// Funkcja pomocnicza: Rysowanie zadań w konkretnym dniu
-function renderTasks(dayNumber, dayElement) {
-    // Czyścimy stare wpisy w tym dniu, żeby się nie dublowały
-    const existingTasks = dayElement.querySelectorAll('.task');
-    existingTasks.forEach(task => task.remove());
+// Jeśli ktoś próbuje wejść bez logowania - wyrzuć go!
+if (!currentUserId) {
+   window.location.href = "login.html";
+}
 
-    // Sprawdzamy, czy w danych mamy jakieś zadania dla tego dnia
-    if (tasksData[dayNumber]) {
-        // Jeśli są, to lecimy pętlą i je dodajemy
-        tasksData[dayNumber].forEach(taskText => {
+//Funkcja pobierająca zadania z serwera
+async function loadTasksFromServer() {
+    try {
+        // Pytamy serwer: "Daj mi zadania użytkownika o tym ID"
+        const response = await fetch(`/api/tasks/${currentUserId}`);
+        const tasks = await response.json(); // To jest tablica zadań z bazy
+
+        // Teraz musimy narysować te zadania w kalendarzu
+        tasks.forEach(task => {
+            // Znajdź kratkę odpowiedniego dnia 
+            const dayBox = calendarContainer.children[task.day - 1];
+            
+            // Stwórz pasek zadania
             const taskDiv = document.createElement("div");
             taskDiv.classList.add("task");
-            taskDiv.innerText = taskText;
-            dayElement.appendChild(taskDiv);
+            taskDiv.innerText = task.text;
+            
+            dayBox.appendChild(taskDiv);
         });
+
+    } catch (error) {
+        console.error("Błąd pobierania zadań:", error);
     }
 }
 
-// 2. GENEROWANIE KALENDARZA
+//GENEROWANIE KALENDARZA 
 for (let day = 1; day <= totalDays; day++) {
     const dayBox = document.createElement("div");
     dayBox.classList.add("day-box");
     dayBox.innerHTML = `<div class="day-number">${day}</div>`;
 
-    // Od razu przy starcie rysujemy zapisane zadania dla tego dnia
-    renderTasks(day, dayBox);
-
-    // Obsługa kliknięcia
     dayBox.addEventListener("click", function() {
-        selectedDayNumber = day; // Zapamiętujemy numer dnia
+        selectedDayNumber = day;
         dateDisplay.innerText = "Dzień: " + day;
         modalOverlay.style.display = "flex";
     });
@@ -48,28 +56,45 @@ for (let day = 1; day <= totalDays; day++) {
     calendarContainer.appendChild(dayBox);
 }
 
-// 3. ZAPISYWANIE NOWEGO ZADANIA
-saveBtn.addEventListener("click", function() {
-    const taskText = taskInput.value;
+// Wywołujemy pobieranie zadań dopiero PO narysowaniu pustego kalendarza
+loadTasksFromServer();
 
+
+//ZAPISYWANIE
+saveBtn.addEventListener("click", async function() {
+    const taskText = taskInput.value;
     if (taskText === "") return;
 
-    // A. Aktualizacja danych w pamięci RAM
-    if (!tasksData[selectedDayNumber]) {
-        tasksData[selectedDayNumber] = []; // Jeśli nie ma tablicy dla tego dnia, stwórz ją
+    // 1. Wysyłamy do serwera
+    try {
+        const response = await fetch('/api/tasks', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                userId: currentUserId,
+                day: selectedDayNumber,
+                text: taskText
+            })
+        });
+
+        if (response.ok) {
+            // 2. Jeśli serwer zapisał, aktualizujemy widok u nas
+            const dayBox = calendarContainer.children[selectedDayNumber - 1];
+            const taskDiv = document.createElement("div");
+            taskDiv.classList.add("task");
+            taskDiv.innerText = taskText;
+            dayBox.appendChild(taskDiv);
+
+            // Sprzątanie
+            modalOverlay.style.display = "none";
+            taskInput.value = "";
+        } else {
+            alert("Błąd zapisu na serwerze");
+        }
+
+    } catch (error) {
+        console.error("Błąd sieci:", error);
     }
-    tasksData[selectedDayNumber].push(taskText); // Dodaj zadanie do listy
-
-    // B. Robimy trwały zapis
-    localStorage.setItem("plannerData", JSON.stringify(tasksData));
-
-    // C. Aktualizacja widoku 
-    const dayBoxToUpdate = calendarContainer.children[selectedDayNumber - 1];
-    renderTasks(selectedDayNumber, dayBoxToUpdate);
-
-    // Sprzątanie
-    modalOverlay.style.display = "none";
-    taskInput.value = "";
 });
 
 // Zamykanie modala

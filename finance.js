@@ -6,105 +6,110 @@ const textInput = document.getElementById('text');
 const amountInput = document.getElementById('amount');
 const addBtn = document.getElementById('add-transaction-btn');
 
-// 1. Wczytujemy transakcje z LocalStorage
-let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+// Pobieramy ID zalogowanego użytkownika
+const currentUserId = localStorage.getItem("userId");
+if (!currentUserId) window.location.href = "login.html";
 
-// 2. Funkcja dodająca transakcję
-function addTransaction() {
+// Zmienna na transakcje 
+let transactions = [];
+
+// 1. POBIERANIE Z SERWERA
+async function getTransactions() {
+    try {
+        const res = await fetch(`/api/transactions/${currentUserId}`);
+        const data = await res.json();
+
+        transactions = data; // Przypisujemy dane z bazy do naszej zmiennej
+        updateDOM();
+    } catch (err) {
+        console.error("Błąd pobierania:", err);
+    }
+}
+
+// 2. DODAWANIE DO SERWERA
+async function addTransaction() {
     if (textInput.value.trim() === '' || amountInput.value.trim() === '') {
-        alert('Proszę wypełnić opis i kwotę');
+        alert('Wypełnij pola');
         return;
     }
 
-    const transaction = {
-        id: generateID(),
+    const newTrans = {
+        userId: currentUserId,
         text: textInput.value,
-        amount: +amountInput.value // Ten "plus" przed zmienną zamienia tekst na liczbę
+        amount: +amountInput.value
     };
 
-    transactions.push(transaction);
+    try {
+        const res = await fetch('/api/transactions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newTrans)
+        });
 
-    updateValues(); // Przeliczamy saldo
-    renderTransaction(transaction); // Dodajemy do listy
-    updateLocalStorage(); // Zapisujemy
-
-    textInput.value = '';
-    amountInput.value = '';
+        const savedTrans = await res.json(); // Otrzymujemy wpis z bazy 
+        
+        transactions.push(savedTrans);
+        updateDOM();
+        
+        textInput.value = '';
+        amountInput.value = '';
+    } catch (err) {
+        console.error("Błąd zapisu:", err);
+    }
 }
 
-// 3. Generowanie losowego ID 
-function generateID() {
-    return Math.floor(Math.random() * 100000000);
+// 3. USUWANIE Z SERWERA
+async function removeTransaction(id) {
+    if(!confirm("Czy na pewno usunąć?")) return;
+
+    try {
+        await fetch(`/api/transactions/${id}`, {
+            method: 'DELETE'
+        });
+
+        // Usuwamy też z widoku 
+        transactions = transactions.filter(t => t._id !== id);
+        updateDOM();
+    } catch (err) {
+        console.error("Błąd usuwania:", err);
+    }
 }
 
-// 4. Wyświetlanie transakcji na liście
+// FUNKCJE POMOCNICZE
+
+function updateDOM() {
+    listEl.innerHTML = '';
+    transactions.forEach(renderTransaction);
+    updateValues();
+}
+
 function renderTransaction(transaction) {
-    // Sprawdzamy czy kwota jest wydatkiem czy przychodem
     const sign = transaction.amount < 0 ? '-' : '+';
     const itemClass = transaction.amount < 0 ? 'minus' : 'plus';
-
     const item = document.createElement('li');
-    
-    // Dodajemy klasę CSS
     item.classList.add(itemClass);
 
-    // Math.abs() usuwa minusa z liczby
     item.innerHTML = `
         ${transaction.text} 
         <span>${sign}${Math.abs(transaction.amount)} PLN</span>
-        <button class="delete-btn" onclick="removeTransaction(${transaction.id})">x</button>
+        <button class="delete-btn" onclick="removeTransaction('${transaction._id}')">x</button>
     `;
-
     listEl.appendChild(item);
 }
 
-// 5. Aktualizacja salda, przychodów i wydatków
 function updateValues() {
-    // Wyciągamy same kwoty z obiektów transakcji
-    const amounts = transactions.map(transaction => transaction.amount);
-
-    // reduce() to funkcja, która sumuje całą tablicę liczb
+    const amounts = transactions.map(t => t.amount);
     const total = amounts.reduce((acc, item) => (acc += item), 0).toFixed(2);
-
-    // Filtrujemy tylko dodatnie, sumujemy
-    const income = amounts
-        .filter(item => item > 0)
-        .reduce((acc, item) => (acc += item), 0)
-        .toFixed(2);
-
-    // Filtrujemy tylko ujemne, sumujemy
-    const expense = (
-        amounts
-        .filter(item => item < 0)
-        .reduce((acc, item) => (acc += item), 0) * -1
-    ).toFixed(2);
+    const income = amounts.filter(item => item > 0).reduce((acc, item) => (acc += item), 0).toFixed(2);
+    const expense = (amounts.filter(item => item < 0).reduce((acc, item) => (acc += item), 0) * -1).toFixed(2);
 
     balanceEl.innerText = `${total} PLN`;
     moneyPlusEl.innerText = `+${income} PLN`;
     moneyMinusEl.innerText = `-${expense} PLN`;
 }
 
-// 6. Usuwanie transakcji po ID
-function removeTransaction(id) {
-    // Zostawiamy tylko te transakcje, które NIE mają tego ID
-    transactions = transactions.filter(transaction => transaction.id !== id);
-    updateLocalStorage();
-    init(); // Przeładowujemy widok
-}
-
-// 7. Zapis do bazy
-function updateLocalStorage() {
-    localStorage.setItem('transactions', JSON.stringify(transactions));
-}
-
-// 8. Start aplikacji
-function init() {
-    listEl.innerHTML = '';
-    transactions.forEach(renderTransaction);
-    updateValues();
-}
-
-init();
-addBtn.addEventListener('click', addTransaction);
-
+// Przypisanie funkcji usuwania do okna
 window.removeTransaction = removeTransaction;
+
+addBtn.addEventListener('click', addTransaction);
+getTransactions();

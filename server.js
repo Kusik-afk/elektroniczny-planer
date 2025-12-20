@@ -8,6 +8,7 @@ const bcrypt = require('bcryptjs');
 const { userInfo } = require('os');
 const { error } = require('console');
 const Task = require('./models/Task');
+const Transaction = require('./models/Transaction');
 
 //2. Tworzymy aplikację
 const app = express();
@@ -120,6 +121,49 @@ app.get('/api/tasks/:userId', async (req, res) => {
 
     } catch (error) {
         res.status(500).json({ message: "Błąd pobierania" });
+    }
+});
+
+// API FINANSÓW
+
+// 1. Dodaj transakcję
+app.post('/api/transactions', async (req, res) => {
+    try {
+        const { userId, text, amount } = req.body;
+        const newTransaction = new Transaction({ userId, text, amount });
+        
+        await newTransaction.save();
+        res.status(201).json(newTransaction);
+    } catch (err) {
+        res.status(500).json({ error: 'Błąd zapisu' });
+    }
+});
+
+// 2. Pobierz historię
+app.get('/api/transactions/:userId', async (req, res) => {
+    try {
+        const history = await Transaction.find({ userId: req.params.userId });
+        res.json(history);
+    } catch (err) {
+        res.status(500).json({ error: 'Błąd pobierania' });
+    }
+});
+
+// 3. USUWANIE 
+app.delete('/api/transactions/:id', async (req, res) => {
+    try {
+        const transaction = await Transaction.findById(req.params.id);
+
+        if (!transaction) {
+            return res.status(404).json({ error: 'Nie znaleziono transakcji' });
+        }
+
+        // Metoda Mongoose do usuwania
+        await Transaction.deleteOne({ _id: req.params.id });
+
+        res.json({ success: true, message: 'Usunięto' });
+    } catch (err) {
+        res.status(500).json({ error: 'Błąd usuwania' });
     }
 });
 

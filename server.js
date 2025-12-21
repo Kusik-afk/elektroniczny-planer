@@ -203,7 +203,7 @@ app.delete('/api/products/:id', async (req, res) => {
 });
 
 //5. Uruchamiamy serwer na porcie 3000
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Serwer działa! Wejdź na stronę: http://localhost:${PORT}`);
+    console.log(`Serwer działa na porcie ${PORT}`);
 });

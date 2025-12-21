@@ -443,10 +443,8 @@ button.delete-btn:hover, #clear-meals-btn:hover {
 }
 .stat-box.orange .icon-bg { color: #ef6c00;}
 
-/*Formularz edycji*/
 
-
-/* Małe ekrany */
+/* Responsywność */
 @media (max-width: 768px) {
     header { flex-direction: column; gap: 15px; }
     .calendar-grid { grid-template-columns: repeat(1, 1fr); } /* Kalendarz w pionie na telefonie */

@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <header>
@@ -12,16 +14,37 @@
         <p>Zorganizuj swój czas, posiłki i treningi w jednym miejscu.</p>
     </header>
 
-    <main>
+    <main class="login-container" style="max-width: 800px; background: none; box-shadow: none;">
         <section>
-            <h2>Dlaczego warto?</h2>
-            <p>Nasza aplikacja pomoże Ci śledzić postępy i osiągać cele.</p>
+            <h1 style="font-size: 3rem; margin-bottom: 20px; color: var(--primary-color);">
+                <i class="fa-solid fa-rocket"></i> Elektroniczny Planer
+            </h1>
+            <p style="font-size: 1.2rem; color: var(--text-light); margin-bottom: 40px;">
+                Zorganizuj swoje życie, finanse i dietę w jednej, nowoczesnej aplikacji.
+            </p>
         </section>
 
-        <section>
-            <a href="login.html"><button>Zaloguj się</button></a>
-            <button>Zarejestruj konto</button>
-        </section>
+        <section style="display: flex; justify-content: center; gap: 20px;">
+            <a href="login.html"><button><i class="fa-solid fa-right-to-bracket"></i> Zaloguj się</button></a>
+            </section>
+
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 60px;">
+            <div class="card" style="text-align: center;">
+                <i class="fa-solid fa-calendar-check" style="font-size: 40px; color: var(--accent-color); margin-bottom: 15px;"></i>
+                <h3>Planer Zadań</h3>
+                <p style="font-size: 0.9rem;">Nie zapomnij o żadnym spotkaniu.</p>
+            </div>
+            <div class="card" style="text-align: center;">
+                <i class="fa-solid fa-utensils" style="font-size: 40px; color: var(--success); margin-bottom: 15px;"></i>
+                <h3>Dieta</h3>
+                <p style="font-size: 0.9rem;">Planuj posiłki i generuj listy zakupów.</p>
+            </div>
+            <div class="card" style="text-align: center;">
+                <i class="fa-solid fa-coins" style="font-size: 40px; color: var(--danger); margin-bottom: 15px;"></i>
+                <h3>Finanse</h3>
+                <p style="font-size: 0.9rem;">Kontroluj wydatki i oszczędzaj.</p>
+            </div>
+        </div>
     </main>
 
     <footer>

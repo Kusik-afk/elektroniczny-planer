@@ -75,7 +75,7 @@ main {
 }
 
 /* Karty (używane w finansach, profilu, logowaniu) */
-.card, .balance-box, .profile-card, .profile-details, .edit-section, .stats-section, .login-container {
+.card, .balance-box, .profile-card, .edit-section, .stats-section, .login-container {
     background: var(--card-bg);
     border-radius: var(--radius);
     padding: 30px;
@@ -321,20 +321,130 @@ button.delete-btn:hover, #clear-meals-btn:hover {
 }
 
 /* --- 11. PROFIL --- */
-.profile-container { display: flex; gap: 20px; flex-wrap: wrap; }
-.avatar-wrapper img { border: 4px solid var(--primary-color); padding: 3px; }
+/*Główny układ*/
+.profile-container { 
+    display: flex; 
+    align-items: flex-start;/*Wyrównaj do góry*/
+    gap: 30px; 
+    margin-top: 20px;
+}
 
-.stats-grid {
+.avatar-wrapper {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    margin: 0 auto 20px auto;
+    cursor: pointer;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.avatar-wrapper img { 
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.upload-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);/*półprzezroczyste tło*/
     display: flex;
-    justify-content: space-around;
-    text-align: center;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
-.stat-box span {
-    font-size: 24px;
-    font-weight: bold;
-    color: var(--text-dark);
+.upload-overlay i {
+    color: white;
+    font-size: 2rem;
 }
+
+.avatar-wrapper:hover .upload-overlay {
+    opacity: 1;
+}
+
+/*Prawa strona*/
+.profile-details {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+/*Grid statystyk*/
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.stat-box {
+    border-radius: 15px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: default;
+}
+
+.stat-box:hover {
+    transform: translateY(-5px);/*uniesienie po najechaniu*/
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+}
+ 
+/*Ikona w tle kółka*/
+.icon-bg {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    background: rgba(255, 255, 255, 0.6);/*półprzezroczyste tło*/
+}
+
+.stat-info span {
+    display: block;
+    font-size: 1.4rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.stat-info p {
+    font-size: 0.85rem;
+    margin: 0;
+    opacity: 0.8;
+}
+
+/*Warianty kolorystyczne*/
+.stat-box.blue {
+    background: #e3f2fd;
+    color: #1565c0;
+}
+.stat-box.blue .icon-bg { color: #1565c0;}
+
+.stat-box.green {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+.stat-box.green .icon-bg { color: #2e7d32;}
+
+.stat-box.orange {
+    background: #fff3e0;
+    color: #ef6c00;
+}
+.stat-box.orange .icon-bg { color: #ef6c00;}
+
+/*Formularz edycji*/
+
 
 /* Małe ekrany */
 @media (max-width: 768px) {

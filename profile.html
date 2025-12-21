@@ -21,48 +21,66 @@
     </header>
 
     <main class="profile-container">
-
+    
         <div class="profile-card">
-            <div class="avatar-wrapper">
-                <img src="https://via.placeholder.com/150" id="profile-pic" alt="Zdjęcie profilowe">
-                <input type="file" id="file-upload" accept="image/*">
+            <div class="avatar-wrapper" onclick="document.getElementById('file-upload').click()">
+                <img src="https://via.placeholder.com/150" id="profile-pic" alt="Avatar">
+                
+                <div class="upload-overlay">
+                    <i class="fa-solid fa-camera"></i>
+                </div>
+
+                <input type="file" id="file-upload" accept="image/*" style="display: none;">
             </div>
-            <h2 id="display-name">Użytkownik</h2>
-            <p id="display-bio">Brak opisu</p>
+            <h2 id="display-name" style="margin-top: 15px; color: var(--primary-color);">Twój Nick</h2>
+            <p id="display-bio" style="color: var(--text-light); font-style: italic;">Twój opis...</p>
         </div>
 
         <div class="profile-details">
-
-            <section class="edit-section">
-                <h3>Edytuj dane</h3>
-                <label>Twoje imię:</label>
-                <input type="text" id="name-input" placeholder="Wpisz imię">
-
-                <label>O sobie:</label>
-                <textarea id="bio-input" placeholder="Napisz coś o sobie..."></textarea>
-
-                <button id="save-profile-btn">Zapisz zmiany</button>
-            </section>
-
+            
             <section class="stats-section">
-                <h3>Twoja aktywność</h3>
+                <h3 style="margin-bottom: 20px;"><i class="fa-solid fa-chart-line"></i> Twoja Aktywność</h3>
+                
                 <div class="stats-grid">
-                    <div class="stat-box">
+                <div class="stat-box blue">
+                    <div class="icon-bg"><i class="fa-solid fa-calendar-check"></i></div>
+                    <div class="stat-info">
                         <span id="stat-tasks">0</span>
-                        <p>Zadań w kalendarzu</p>
-                    </div>
-                    <div class="stat-box">
-                        <span id="stat-balance">0 PLN</span>
-                        <p>Aktualne saldo</p>
-                    </div>
-                    <div class="stat-box">
-                        <span id="stat-shopping">0</span>
-                        <p>Rzeczy do kupienia</p>
+                        <p>Zadania</p>
                     </div>
                 </div>
-            </section>
-        </div>
 
+                <div class="stat-box green">
+                    <div class="icon-bg"><i class="fa-solid fa-wallet"></i></div>
+                    <div class="stat-info">
+                        <span id="stat-balance">0 PLN</span>
+                        <p>Saldo</p>
+                    </div>
+                </div>
+
+                <div class="stat-box orange">
+                    <div class="icon-bg"><i class="fa-solid fa-basket-shopping"></i></div>
+                    <div class="stat-info">
+                        <span id="stat-shopping">0</span>
+                        <p>Zakupy</p>
+                    </div>
+                </div>
+            </div>
+            </section>
+
+            <section class="edit-section" style="margin-top: 20px;">
+                <h3><i class="fa-solid fa-pen-to-square"></i> Edytuj profil</h3>
+                
+                <label>Twoje Imię / Nick</label>
+                <input type="text" id="name-input" placeholder="Jak mamy się do Ciebie zwracać?">
+                
+                <label>Krótki opis (Bio)</label>
+                <textarea id="bio-input" placeholder="Napisz coś o sobie..." style="height: 80px;"></textarea>
+                
+                <button id="save-profile-btn"><i class="fa-solid fa-floppy-disk"></i> Zapisz zmiany</button>
+            </section>
+
+        </div>
     </main>
 
     <script src="profile.js"></script>

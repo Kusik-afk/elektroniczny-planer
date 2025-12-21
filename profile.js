@@ -1,107 +1,117 @@
-const nameInput = document.getElementById("name-input");//pole do wpisywania imienia
-const bioInput = document.getElementById("bio-input");//pole O sobie
-const displayName = document.getElementById("display-name");//h2 Użytkownik
-const displayBio = document.getElementById("display-bio");//opis 
-const saveBtn = document.getElementById("save-profile-btn");//przycisk Zapisz zmiany
-const fileUpload = document.getElementById("file-upload");//input zdjęcie
-const profilePic = document.getElementById("profile-pic");//src zdjęcia
+// Elementy formularza i wizytówki
+const nameInput = document.getElementById("name-input");
+const bioInput = document.getElementById("bio-input");
+const displayName = document.getElementById("display-name");
+const displayBio = document.getElementById("display-bio");
+const saveBtn = document.getElementById("save-profile-btn");
+const fileUpload = document.getElementById("file-upload");
+const profilePic = document.getElementById("profile-pic");
 
-//Elementy statystyk
-const statTasks = document.getElementById("stat-tasks");//ilość zadań w kalendarzu
-const statBalance = document.getElementById("stat-balance");//aktualne saldo
-const statShopping = document.getElementById("stat-shopping");//ilość rzeczy do kupienia
+// Elementy statystyk
+const statTasks = document.getElementById("stat-tasks");
+const statBalance = document.getElementById("stat-balance");
+const statShopping = document.getElementById("stat-shopping");
 
-//1. Ładowanie danych przy starcie
-function loadProfile() {
-    //Wczytaj dane osobowe
+// Pobranie ID użytkownika
+const currentUserId = localStorage.getItem("userId");
+if (!currentUserId) window.location.href = "login.html";
+
+//1. FUNKCJA POBIERAJĄCA DANE Z SERWERA
+async function fetchStats() {
+    try {
+        const [tasksRes, financeRes, shoppingRes] = await Promise.all([
+            fetch(`/api/tasks/${currentUserId}`),       // Pobierz zadania
+            fetch(`/api/transactions/${currentUserId}`), // Pobierz finanse
+            fetch(`/api/products/${currentUserId}`)      // Pobierz zakupy
+        ]);
+
+        const tasks = await tasksRes.json();
+        const transactions = await financeRes.json();
+        const products = await shoppingRes.json();
+
+        // A. Aktualizacja licznika zadań
+        statTasks.innerText = tasks.length;
+
+        // B. Aktualizacja salda 
+        const totalBalance = transactions.reduce((acc, item) => acc + item.amount, 0).toFixed(2);
+        statBalance.innerText = totalBalance + " PLN";
+        
+        // Kolorowanie salda
+        if (totalBalance >= 0) {
+            statBalance.style.color = "var(--success)";
+        } else {
+            statBalance.style.color = "var(--danger)";
+        }
+
+        // C. Aktualizacja licznika zakupów
+        statShopping.innerText = products.length;
+
+    } catch (error) {
+        console.error("Błąd pobierania statystyk:", error);
+        statTasks.innerText = "Błąd";
+    }
+}
+
+//2. OBSŁUGA DANYCH PROFILOWYCH
+
+function loadProfileSettings() {
     const userProfile = JSON.parse(localStorage.getItem("userProfile")) || {};
-
+    
     if (userProfile.name) {
         nameInput.value = userProfile.name;
         displayName.innerText = userProfile.name;
     }
-
+    
     if (userProfile.bio) {
         bioInput.value = userProfile.bio;
         displayBio.innerText = userProfile.bio;
     }
 
     if (userProfile.image) {
-        profilePic.src = userProfile.image;//wstawiamy zapisany obrazek
+        profilePic.src = userProfile.image;
     }
-
-    //Wczytujemy statytyki z innych podstron LocalStorage
-    calculateStats();
 }
 
-//2. Oblicznie statystyk
-function calculateStats() {
-    //Kalendarz
-    const tasksData = JSON.parse(localStorage.getItem("plannerData")) || {};
-    let totalTasks = 0;
-    //Object.values wyciąga same tablice zdań, a flat() łączy je w jedną dużą tablicę
-    if (Object.keys(tasksData).length > 0) {
-        totalTasks = Object.values(tasksData).flat().length;
-    }
-    statTasks.innerText = totalTasks;
-
-    //Finanse
-    const transactions = JSON.parse(localStorage.getItem("transactions")) || [];
-    //Liczymy sumę
-    const totalBalance = transactions.reduce((acc, item) => acc + item.amount, 0).toFixed(2);
-    statBalance.innerText = totalBalance + "PLN";
-
-    //Zakupy
-    const shoppingList = JSON.parse(localStorage.getItem("shoppingList")) || [];
-    statShopping.innerText = shoppingList.length;
-}
-
-//3. Zapisywanie danych tekstowych
+// Zapisywanie ustawień 
 saveBtn.addEventListener("click", () => {
     const profileData = JSON.parse(localStorage.getItem("userProfile")) || {};
-
+    
     profileData.name = nameInput.value;
     profileData.bio = bioInput.value;
 
     localStorage.setItem("userProfile", JSON.stringify(profileData));
-
-    //Odświeżamy widok
-    displayName.innerText = nameInput.value;
-    displayBio.innerText = bioInput.value;
+    
+    // Odśwież widok
+    displayName.innerText = nameInput.value || "Użytkownik";
+    displayBio.innerText = bioInput.value || "Brak opisu";
+    
     alert("Profil zaktualizowany!");
 });
 
-// 4. OBSŁUGA ZDJĘCIA 
+// Obsługa zdjęcia
 fileUpload.addEventListener("change", function() {
-    // Sprawdzamy, czy użytkownik wybrał plik
     if (this.files && this.files[0]) {
         const file = this.files[0];
-
-        // Ograniczenie
-        if (file.size > 2000000) { // 2MB
-            alert("Plik jest za duży! Wybierz mniejsze zdjęcie.");
+        
+        // Limit 2MB
+        if (file.size > 2000000) {
+            alert("Plik jest za duży! Max 2MB.");
             return;
         }
 
         const reader = new FileReader();
-
-        // Kiedy czytnik skończy przetwarzać plik...
         reader.onload = function(e) {
-            const imageBase64 = e.target.result; // To jest nasz obrazek jako tekst
-            
-            // Wyświetl na stronie
+            const imageBase64 = e.target.result;
             profilePic.src = imageBase64;
 
-            // Zapisz w pamięci
             const profileData = JSON.parse(localStorage.getItem("userProfile")) || {};
             profileData.image = imageBase64;
             localStorage.setItem("userProfile", JSON.stringify(profileData));
         }
-
-        // Komenda
         reader.readAsDataURL(file);
     }
 });
 
-// Start
-loadProfile();
+// START
+loadProfileSettings(); // Wczytaj zdjęcie i opis z przeglądarki
+fetchStats();          // Pobierz liczby z bazy danych

@@ -9,6 +9,7 @@ const { userInfo } = require('os');
 const { error } = require('console');
 const Task = require('./models/Task');
 const Transaction = require('./models/Transaction');
+const Product = require('./models/Product');
 
 //2. Tworzymy aplikację
 const app = express();
@@ -162,6 +163,40 @@ app.delete('/api/transactions/:id', async (req, res) => {
         await Transaction.deleteOne({ _id: req.params.id });
 
         res.json({ success: true, message: 'Usunięto' });
+    } catch (err) {
+        res.status(500).json({ error: 'Błąd usuwania' });
+    }
+});
+
+//API LISTY ZAKUPÓW
+
+// 1. Dodaj produkt
+app.post('/api/products', async (req, res) => {
+    try {
+        const { userId, name } = req.body;
+        const newProduct = new Product({ userId, name });
+        await newProduct.save();
+        res.status(201).json(newProduct);
+    } catch (err) {
+        res.status(500).json({ error: 'Błąd zapisu' });
+    }
+});
+
+// 2. Pobierz listę
+app.get('/api/products/:userId', async (req, res) => {
+    try {
+        const list = await Product.find({ userId: req.params.userId });
+        res.json(list);
+    } catch (err) {
+        res.status(500).json({ error: 'Błąd pobierania' });
+    }
+});
+
+// 3. Usuń produkt
+app.delete('/api/products/:id', async (req, res) => {
+    try {
+        await Product.deleteOne({ _id: req.params.id });
+        res.json({ success: true });
     } catch (err) {
         res.status(500).json({ error: 'Błąd usuwania' });
     }

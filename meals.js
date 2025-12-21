@@ -5,6 +5,12 @@ const shopInput = document.getElementById("shop-input");//pole do wpisywania zak
 const addShopBtn = document.getElementById("add-shop-btn");//przycisk dodaj zakupy
 const shoppingListContainer = document.getElementById("shopping-list");//lista zakupów
 
+// Pobieramy ID użytkownika
+const currentUserId = localStorage.getItem("userId");
+if (!currentUserId && window.location.pathname.includes("meals.html")) {
+     window.location.href = "login.html";
+}
+
 const daysOfWeek = ["Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota", "Niedziela"];
 
 //1. Wczytanie danych
@@ -62,32 +68,41 @@ saveBtn.addEventListener("click", () => {
     alert("Jadłospis zapisany!");
 });
 
-//4. Wczytujemy zapisaną listę zakupów
-let shoppingList = JSON.parse(localStorage.getItem("shoppingList")) || [];
+//4. Wczytujemy listę zakupów
+let shoppingList = [];
 
-//Funkcja rysująca listę na ekranie
+//POBIERANIE Z SERWERA
+async function fetchShoppingList() {
+    try {
+        const res = await fetch(`/api/products/${currentUserId}`);
+        const data = await res.json();
+        shoppingList = data;
+        renderShoppingList();
+    } catch (err) {
+        console.error("Błąd pobierania listy:", err);
+    }
+}
+
+//RYSOWANIE LISTY
 function renderShoppingList() {
-    shoppingListContainer.innerHTML = ""; // Czyścimy widok
+    shoppingListContainer.innerHTML = ""; // Czyścimy
 
-    shoppingList.forEach((item, index) => {
+    shoppingList.forEach((item) => {
         const li = document.createElement("li");
         
-        // Tworzymy tekst
         const span = document.createElement("span");
-        span.innerText = item;
+        span.innerText = item.name;
         
-        // Tworzymy przycisk usuwania 
         const deleteBtn = document.createElement("button");
         deleteBtn.innerText = "❌";
-        deleteBtn.style.marginLeft = "auto"; // Przesuwa guzik do prawej
+        deleteBtn.style.marginLeft = "auto";
         deleteBtn.style.background = "transparent";
         deleteBtn.style.border = "none";
         deleteBtn.style.cursor = "pointer";
 
-        // Obsługa usunięcia
-        deleteBtn.addEventListener("click", () => {
-            shoppingList.splice(index, 1); // Usuń 1 element pod tym indeksem
-            saveAndRender(); // Zapisz i odśwież
+        // Obsługa usuwania (po ID z bazy!)
+        deleteBtn.addEventListener("click", async () => {
+            await removeProduct(item._id);
         });
 
         li.appendChild(span);
@@ -96,24 +111,44 @@ function renderShoppingList() {
     });
 }
 
-//Funkcja pomocnicza: zapisz do bazy i przerysuj
-function saveAndRender() {
-    localStorage.setItem("shoppingList", JSON.stringify(shoppingList));
-    renderShoppingList();
-}
-
-//Obsługa przycisku "Dodaj"
-addShopBtn.addEventListener("click", () => {
+//DODAWANIE DO SERWERA
+addShopBtn.addEventListener("click", async () => {
     const value = shopInput.value;
-    if (value === "") return;//jak pusto, to nic nie rób
+    if (value === "") return;
 
-    shoppingList.push(value);//dodaj do tablicy
-    saveAndRender();//zapisz zmiany
-    shopInput.value = "";//wyczyść pole wpisywania
+    try {
+        const res = await fetch('/api/products', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: currentUserId, name: value })
+        });
+        
+        const newProduct = await res.json();
+        shoppingList.push(newProduct);
+        renderShoppingList();
+        shopInput.value = "";
+    } catch (err) {
+        console.error("Błąd dodawania:", err);
+    }
 });
 
-//Pokaż listę przy wejściu na stronę
-renderShoppingList();
+//USUWANIE Z SERWERA
+async function removeProduct(id) {
+    try {
+        await fetch(`/api/products/${id}`, { method: 'DELETE' });
+        
+        // Aktualizacja widoku bez odświeżania strony
+        shoppingList = shoppingList.filter(item => item._id !== id);
+        renderShoppingList();
+    } catch (err) {
+        console.error("Błąd usuwania:", err);
+    }
+}
+
+// Startujemy pobieranie tylko jeśli jesteśmy na stronie meals.html
+if (document.getElementById("shopping-list")) {
+    fetchShoppingList();
+}
 
 //5. Czyszczenie
 clearBtn.addEventListener("click", () => {

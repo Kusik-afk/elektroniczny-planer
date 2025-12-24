@@ -140,6 +140,21 @@ app.get('/api/tasks/:userId', async (req, res) => {
     }
 });
 
+// 3. Usuwanie zadania 
+app.delete('/api/tasks/:id', async (req, res) => {
+    try {
+        const result = await Task.findByIdAndDelete(req.params.id);
+        
+        if (!result) {
+            return res.status(404).json({ message: "Nie znaleziono zadania" });
+        }
+        
+        res.json({ message: "Zadanie usunięte" });
+    } catch (error) {
+        res.status(500).json({ message: "Błąd serwera" });
+    }
+});
+
 // API FINANSÓW
 
 // 1. Dodaj transakcję

@@ -16,28 +16,67 @@ if (!currentUserId) {
    window.location.href = "login.html";
 }
 
-//Funkcja pobierająca zadania z serwera
+//FUNKCJA POBIERAJĄCA ZADANIA
 async function loadTasksFromServer() {
-    try {
-        // Pytamy serwer: "Daj mi zadania użytkownika o tym ID"
-        const response = await fetch(`/api/tasks/${currentUserId}`);
-        const tasks = await response.json(); // To jest tablica zadań z bazy
+    // Najpierw czyścimy kalendarz ze starych zadań, żeby się nie dublowały
+    document.querySelectorAll(".task").forEach(el => el.remove());
 
-        // Teraz musimy narysować te zadania w kalendarzu
+    try {
+        const response = await fetch(`/api/tasks/${currentUserId}`);
+        const tasks = await response.json();
+
         tasks.forEach(task => {
-            // Znajdź kratkę odpowiedniego dnia 
+            // Znajdź kratkę dnia
             const dayBox = calendarContainer.children[task.day - 1];
             
-            // Stwórz pasek zadania
-            const taskDiv = document.createElement("div");
-            taskDiv.classList.add("task");
-            taskDiv.innerText = task.text;
-            
-            dayBox.appendChild(taskDiv);
+            if (dayBox) {
+                // Tworzymy pasek zadania
+                const taskDiv = document.createElement("div");
+                taskDiv.classList.add("task");
+                
+                // Treść zadania
+                const textSpan = document.createElement("span");
+                textSpan.innerText = task.text;
+                
+                // Przycisk usuwania 
+                const deleteBtn = document.createElement("span");
+                deleteBtn.innerHTML = " &times;"; // Znak "x"
+                deleteBtn.style.color = "red";
+                deleteBtn.style.fontWeight = "bold";
+                deleteBtn.style.cursor = "pointer";
+                deleteBtn.style.marginRight = "5px";
+                
+                // Co się dzieje jak klikniesz "X"?
+                deleteBtn.onclick = async (e) => {
+                    e.stopPropagation(); // żeby nie otwierało się okienko dodawania (modal)
+                    
+                    if(confirm("Usunąć zadanie?")) {
+                        await deleteTask(task._id); // Wywołujemy funkcję usuwania
+                        taskDiv.remove(); // Usuwamy z ekranu
+                    }
+                };
+
+                taskDiv.appendChild(textSpan);
+                taskDiv.appendChild(deleteBtn);
+                
+                dayBox.appendChild(taskDiv);
+            }
         });
 
     } catch (error) {
         console.error("Błąd pobierania zadań:", error);
+    }
+}
+
+//NOWA FUNKCJA USUWAJĄCA Z BAZY
+async function deleteTask(taskId) {
+    try {
+        await fetch(`/api/tasks/${taskId}`, {
+            method: 'DELETE'
+        });
+    } catch (error) {
+        console.error("Błąd usuwania:", error);
+        alert("Nie udało się usunąć.");
     }
 }
 
@@ -78,12 +117,8 @@ saveBtn.addEventListener("click", async function() {
         });
 
         if (response.ok) {
-            // 2. Jeśli serwer zapisał, aktualizujemy widok u nas
-            const dayBox = calendarContainer.children[selectedDayNumber - 1];
-            const taskDiv = document.createElement("div");
-            taskDiv.classList.add("task");
-            taskDiv.innerText = taskText;
-            dayBox.appendChild(taskDiv);
+            // 2. Odświeżamy wszystko
+            loadTasksFromServer();
 
             // Sprzątanie
             modalOverlay.style.display = "none";

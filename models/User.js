@@ -15,6 +15,14 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: "Użytkownik" // Domyślna nazwa, jak ktoś nie poda
     },
+    bio: {
+        type: String,
+        default: ""//domyślnie puste
+    },
+    image: {
+        type: String,//zdjęcie trzymamy jako długi tekst
+        default: ""
+    },
     // Tu w przyszłości możemy dodać tablicę zadań, finansów itp.
     createdAt: {
         type: Date,

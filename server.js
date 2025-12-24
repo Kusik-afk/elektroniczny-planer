@@ -217,6 +217,44 @@ app.delete('/api/products/:id', async (req, res) => {
     }
 });
 
+//API PROFILU UŻYTKOWNIKA
+
+// 1. Pobieranie danych o użytkowniku 
+app.get('/api/user/:id', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id).select('-password');
+        
+        if (!user) return res.status(404).json({ message: "Nie znaleziono użytkownika" });
+        
+        res.json(user);
+    } catch (error) {
+        res.status(500).json({ message: "Błąd serwera" });
+    }
+});
+
+// 2. Aktualizacja danych użytkownika 
+app.put('/api/user/:id', async (req, res) => {
+    const { name, bio, image } = req.body;
+
+    try {
+        // Znajdź użytkownika i podmień dane
+        const updatedUser = await User.findByIdAndUpdate(
+            req.params.id,
+            { 
+                name: name, 
+                bio: bio,
+                image: image 
+            },
+            { new: true }
+        ).select('-password');
+
+        res.json(updatedUser);
+
+    } catch (error) {
+        res.status(500).json({ message: "Błąd aktualizacji" });
+    }
+});
+
 //5. Uruchamiamy serwer na porcie 3000
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

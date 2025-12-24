@@ -1,7 +1,8 @@
-const emailInput = document.getElementById("email");
-const passwordInput = document.getElementById("password");
-const loginBtn = document.getElementById("login-btn");
-const registerBtn = document.getElementById("register-btn");
+const nameInput = document.getElementById("name-reg");//pole do wpisywania imienia
+const emailInput = document.getElementById("email");//pole do wpisywania maila
+const passwordInput = document.getElementById("password");//pole do wpisywania hasła
+const loginBtn = document.getElementById("login-btn");//przycisk zaloguj się
+const registerBtn = document.getElementById("register-btn");//przycisk zarejestruj się
 
 // Funkcja pomocnicza do wysyłania danych
 async function sendData(url, data) {
@@ -15,12 +16,19 @@ async function sendData(url, data) {
 
 // 1. Obsługa REJESTRACJI
 registerBtn.addEventListener("click", async () => {
+    // Pobieramy wartości
+    const name = nameInput.value; 
     const email = emailInput.value;
     const password = passwordInput.value;
 
-    const result = await sendData('/api/register', { email, password });
+    // Wysyłamy do serwera 
+    const result = await sendData('/api/register', { 
+        name: name, 
+        email: email, 
+        password: password 
+    });
     
-    alert(result.message); // "Rejestracja udana" lub błąd
+    alert(result.message);
 });
 
 // 2. Obsługa LOGOWANIA

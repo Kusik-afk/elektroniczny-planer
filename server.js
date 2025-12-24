@@ -29,31 +29,46 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Endpoint Rejestracji
+//Endpoint rejestracji
 app.post('/api/register', async (req, res) => {
-    // 1. Pobieramy dane wysłane przez formularz
-    const { email, password } = req.body;
+    const { email, password, name } = req.body;//oczekujemy email, hasło i imię
 
     try {
-        // 2. Sprawdzamy, czy taki użytkownik już istnieje
+        // 1. Walidacja danych
+        // Sprawdzamy, czy pola nie są puste
+        if (!email || !password || !name) {
+            return res.status(400).json({ message: "Wszystkie pola (Email, Hasło, Imię) są wymagane!" });
+        }
+
+        // Sprawdzamy format e-maila 
+        if (!email.includes('@')) {
+            return res.status(400).json({ message: "Podaj poprawny adres e-mail." });
+        }
+
+        // Sprawdzamy długość hasła 
+        if (password.length < 6) {
+            return res.status(400).json({ message: "Hasło musi mieć co najmniej 6 znaków." });
+        }
+
+        // 2. Sprawdzamy, czy użytkownik już istnieje
         const existingUser = await User.findOne({ email: email });
         if (existingUser) {
             return res.status(400).json({ message: "Taki email jest już zajęty!" });
         }
 
-        //3. Hashowanie hasła
+        // 3. Szyfrowanie hasła
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        // 4. Tworzymy użytkownika z ZASZYFROWANYM hasłem
+        // 4. Tworzenie użytkownika
         const newUser = new User({
             email: email,
-            password: hashedPassword // Tu wrzucamy krzaki zamiast tekstu
+            password: hashedPassword,
+            name: name // Dodajemy imię do bazy
         });
 
         await newUser.save();
 
-        // 5. Odsyłamy sukces
         res.status(201).json({ message: "Rejestracja udana! Możesz się zalogować." });
 
     } catch (error) {
@@ -205,5 +220,5 @@ app.delete('/api/products/:id', async (req, res) => {
 //5. Uruchamiamy serwer na porcie 3000
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Serwer działa na porcie ${PORT}`);
+    console.log(`Serwer działa na porcie ${PORT}! Wejdź na stronę : http://localhost:${PORT}`);
 });

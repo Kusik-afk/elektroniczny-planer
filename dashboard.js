@@ -4,6 +4,24 @@ const closeBtn = document.querySelector(".close-btn");
 const saveBtn = document.getElementById("save-btn");
 const taskInput = document.getElementById("task-input");
 const dateDisplay = document.getElementById("selected-date");
+//OBSŁUGA WYLOGOWANIA
+const logoutBtn = document.getElementById("logout-btn");
+
+if (logoutBtn) {
+    logoutBtn.addEventListener("click", (e) => {
+        e.preventDefault(); // Zatrzymaj zwykłe kliknięcie 
+        
+        // 1. Czyścimy "klucze" z pamięci przeglądarki
+        localStorage.removeItem("userId");
+        localStorage.removeItem("userProfile");
+      
+        // 2. Wyświetlamy komunikat
+        alert("Wylogowano pomyślnie. Do zobaczenia!");
+
+        // 3. Przenosimy na stronę logowania
+        window.location.href = "index.html";
+    });
+}
 
 const totalDays = 31;
 let selectedDayNumber = null;
@@ -44,7 +62,7 @@ async function loadTasksFromServer() {
                 deleteBtn.style.color = "red";
                 deleteBtn.style.fontWeight = "bold";
                 deleteBtn.style.cursor = "pointer";
-                deleteBtn.style.marginRight = "5px";
+                deleteBtn.style.marginLeft = "5px";
                 
                 // Co się dzieje jak klikniesz "X"?
                 deleteBtn.onclick = async (e) => {
@@ -137,3 +155,4 @@ closeBtn.addEventListener("click", () => modalOverlay.style.display = "none");
 modalOverlay.addEventListener("click", (e) => {
     if (e.target === modalOverlay) modalOverlay.style.display = "none";
 });
+

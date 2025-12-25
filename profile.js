@@ -11,6 +11,24 @@ const profilePic = document.getElementById("profile-pic");//zdjęcie wyświetlan
 const statTasks = document.getElementById("stat-tasks");//liczba zadań 
 const statBalance = document.getElementById("stat-balance");//stan salda
 const statShopping = document.getElementById("stat-shopping");//liczba produktów
+//OBSŁUGA WYLOGOWANIA
+const logoutBtn = document.getElementById("logout-btn");
+
+if (logoutBtn) {
+    logoutBtn.addEventListener("click", (e) => {
+        e.preventDefault(); // Zatrzymaj zwykłe kliknięcie 
+        
+        // 1. Czyścimy "klucze" z pamięci przeglądarki
+        localStorage.removeItem("userId");
+        localStorage.removeItem("userProfile");
+      
+        // 2. Wyświetlamy komunikat
+        alert("Wylogowano pomyślnie. Do zobaczenia!");
+
+        // 3. Przenosimy na stronę logowania
+        window.location.href = "index.html";
+    });
+}
 
 // Pobieramy ID zalogowanego użytkownika
 const currentUserId = localStorage.getItem("userId");

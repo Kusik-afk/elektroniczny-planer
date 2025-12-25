@@ -9,6 +9,24 @@ const addBtn = document.getElementById('add-transaction-btn');
 // Pobieramy ID zalogowanego użytkownika
 const currentUserId = localStorage.getItem("userId");
 if (!currentUserId) window.location.href = "login.html";
+//OBSŁUGA WYLOGOWANIA
+const logoutBtn = document.getElementById("logout-btn");
+
+if (logoutBtn) {
+    logoutBtn.addEventListener("click", (e) => {
+        e.preventDefault(); // Zatrzymaj zwykłe kliknięcie 
+        
+        // 1. Czyścimy "klucze" z pamięci przeglądarki
+        localStorage.removeItem("userId");
+        localStorage.removeItem("userProfile");
+      
+        // 2. Wyświetlamy komunikat
+        alert("Wylogowano pomyślnie. Do zobaczenia!");
+
+        // 3. Przenosimy na stronę logowania
+        window.location.href = "index.html";
+    });
+}
 
 // Zmienna na transakcje 
 let transactions = [];

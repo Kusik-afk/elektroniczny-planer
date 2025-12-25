@@ -4,6 +4,24 @@ const clearBtn = document.getElementById("clear-meals-btn");//przycisk wyczyść
 const shopInput = document.getElementById("shop-input");//pole do wpisywania zakupów
 const addShopBtn = document.getElementById("add-shop-btn");//przycisk dodaj zakupy
 const shoppingListContainer = document.getElementById("shopping-list");//lista zakupów
+//OBSŁUGA WYLOGOWANIA
+const logoutBtn = document.getElementById("logout-btn");
+
+if (logoutBtn) {
+    logoutBtn.addEventListener("click", (e) => {
+        e.preventDefault(); // Zatrzymaj zwykłe kliknięcie 
+        
+        // 1. Czyścimy "klucze" z pamięci przeglądarki
+        localStorage.removeItem("userId");
+        localStorage.removeItem("userProfile");
+      
+        // 2. Wyświetlamy komunikat
+        alert("Wylogowano pomyślnie. Do zobaczenia!");
+
+        // 3. Przenosimy na stronę logowania
+        window.location.href = "index.html";
+    });
+}
 
 // Pobieramy ID użytkownika
 const currentUserId = localStorage.getItem("userId");

@@ -9,22 +9,35 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="login-container">
-        <h2>Witaj ponownie!</h2>
+    <main class="login-container">
 
-        <form>
-            <input type="text" id="name-reg" placeholder="Twoje Imię" required>
-            <input type="text" id="email" placeholder="Twój e-mail" required>
-            <input type="password" id="password" placeholder="Hasło" required>
-    
-            <div style="margin-top: 10px;">
-                <button type="button" id="login-btn">Zaloguj się</button>
-                <button type="button" id="register-btn" style="background-color: #28a745;">Zarejestruj się</button>
-            </div>
-        </form>
+        <div id="login-box" class="card">
+            <h2><i class="fa-solid fa-right-to-bracket"></i> Logowanie</h2>
+            <input type="text" id="email-login" placeholder="Twój e-mail">
+            <input type="password" id="password-login" placeholder="Hasło">
+            
+            <button id="login-btn" style="width: 100%">Zaloguj się</button>
+            
+            <p style="margin-top: 15px; font-size: 0.9rem;">
+                Nie masz konta? <span id="show-register" class="toggle-link">Zarejestruj się</span>
+            </p>
+        </div>
 
-        <!-- <p>Nie masz konta? <a href="index.html">Wróć na stronę główną</a></p> -->
-    </div>
+        <div id="register-box" class="card hidden">
+            <h2><i class="fa-solid fa-user-plus"></i> Rejestracja</h2>
+            <p style="margin-bottom: 15px; font-size: 0.9rem; color: #666;">Dołącz do nas!</p>
+            
+            <input type="text" id="name-reg" placeholder="Twoje Imię">
+            <input type="text" id="email-reg" placeholder="Twój e-mail">
+            <input type="password" id="password-reg" placeholder="Hasło (min. 6 znaków)">
+            
+            <button id="register-btn" style="width: 100%; background-color: var(--success);">Załóż konto</button>
+            
+            <p style="margin-top: 15px; font-size: 0.9rem;">
+                Masz już konto? <span id="show-login" class="toggle-link">Zaloguj się</span>
+            </p>
+        </div>
+    </main>
 
     <script src="script.js"></script>
 </body>

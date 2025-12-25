@@ -1,42 +1,50 @@
-const nameInput = document.getElementById("name-reg");//pole do wpisywania imienia
-const emailInput = document.getElementById("email");//pole do wpisywania maila
-const passwordInput = document.getElementById("password");//pole do wpisywania hasła
-const loginBtn = document.getElementById("login-btn");//przycisk zaloguj się
-const registerBtn = document.getElementById("register-btn");//przycisk zarejestruj się
+//1. POBIERANIE ELEMENTÓW
 
-// Funkcja pomocnicza do wysyłania danych
-async function sendData(url, data) {
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-    });
-    return await response.json();
-}
+// Pudełka 
+const loginBox = document.getElementById("login-box");
+const registerBox = document.getElementById("register-box");
 
-// 1. Obsługa REJESTRACJI
-registerBtn.addEventListener("click", async () => {
-    // Pobieramy wartości
-    const name = nameInput.value; 
-    const email = emailInput.value;
-    const password = passwordInput.value;
+// Linki przełączające
+const showRegisterLink = document.getElementById("show-register");
+const showLoginLink = document.getElementById("show-login");
 
-    // Wysyłamy do serwera 
-    const result = await sendData('/api/register', { 
-        name: name, 
-        email: email, 
-        password: password 
-    });
-    
-    alert(result.message);
+// Pola LOGOWANIA
+const emailLoginInput = document.getElementById("email-login");
+const passwordLoginInput = document.getElementById("password-login");
+const loginBtn = document.getElementById("login-btn");
+
+// Pola REJESTRACJI
+const nameRegInput = document.getElementById("name-reg");
+const emailRegInput = document.getElementById("email-reg");
+const passwordRegInput = document.getElementById("password-reg");
+const registerBtn = document.getElementById("register-btn");
+
+
+//2. OBSŁUGA PRZEŁĄCZANIA WIDOKÓW
+
+// Pokaż Rejestrację
+showRegisterLink.addEventListener("click", () => {
+    loginBox.classList.add("hidden");    // Ukryj logowanie
+    registerBox.classList.remove("hidden"); // Pokaż rejestrację
 });
 
-// 2. Obsługa LOGOWANIA
-loginBtn.addEventListener("click", async () => {
-    const email = emailInput.value;
-    const password = passwordInput.value;
+// Pokaż Logowanie
+showLoginLink.addEventListener("click", () => {
+    registerBox.classList.add("hidden");    // Ukryj rejestrację
+    loginBox.classList.remove("hidden");    // Pokaż logowanie
+});
 
-    // Wysyłamy prośbę o logowanie
+
+//3. OBSŁUGA LOGOWANIA
+loginBtn.addEventListener("click", async () => {
+    // Blokada przycisku 
+    loginBtn.disabled = true;
+    const originalText = loginBtn.innerText;
+    loginBtn.innerText = "⏳ Logowanie...";
+
+    const email = emailLoginInput.value;
+    const password = passwordLoginInput.value;
+
     try {
         const response = await fetch('/api/login', {
             method: 'POST',
@@ -46,24 +54,69 @@ loginBtn.addEventListener("click", async () => {
 
         const data = await response.json();
 
-        //Debugowanie start
-        console.log("Odpowiedź serwera:", data);
-
         if (response.ok) {
-            if (data.userId) {
-                localStorage.setItem("userId", data.userId);
-                alert("Witaj " + (data.name || "użytkowniku") + "!");
-                window.location.href = "dashboard.html";
-            } else {
-                console.error("Błąd: serwer nie przysłał ID!");
-                alert("Błąd logowania: brak Id użytkownika.")
+            localStorage.setItem("userId", data.userId);
+            // Zapisz imię jeśli serwer je zwrócił
+            if(data.name) {
+                localStorage.setItem("userProfile", JSON.stringify({ name: data.name }));
             }
+            window.location.href = "dashboard.html";
         } else {
-            // BŁĄD 
             alert("Błąd: " + data.message);
         }
     } catch (error) {
         console.error(error);
-        alert("Błąd połączenia");
+        alert("Błąd połączenia z serwerem");
+    } finally {
+        // Zawsze przywróć przycisk
+        loginBtn.disabled = false;
+        loginBtn.innerText = originalText;
+    }
+});
+
+
+//4. OBSŁUGA REJESTRACJI
+registerBtn.addEventListener("click", async () => {
+    registerBtn.disabled = true;
+    const originalText = registerBtn.innerText;
+    registerBtn.innerText = "⏳ Zakładanie konta...";
+
+    const name = nameRegInput.value;
+    const email = emailRegInput.value;
+    const password = passwordRegInput.value;
+
+    // Szybka walidacja
+    if (!name || !email || !password) {
+        alert("Wypełnij wszystkie pola!");
+        registerBtn.disabled = false;
+        registerBtn.innerText = originalText;
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, password })
+        });
+        
+        const data = await response.json();
+
+        if (response.ok) {
+            alert("Konto założone! Teraz możesz się zalogować.");
+            // Automatycznie przełącz na ekran logowania
+            registerBox.classList.add("hidden");
+            loginBox.classList.remove("hidden");
+            // Przepisz email, żeby użytkownik nie musiał wpisywać ponownie
+            emailLoginInput.value = email; 
+        } else {
+            alert("Błąd: " + data.message);
+        }
+    } catch (error) {
+        console.error(error);
+        alert("Błąd połączenia z serwerem");
+    } finally {
+        registerBtn.disabled = false;
+        registerBtn.innerText = originalText;
     }
 });

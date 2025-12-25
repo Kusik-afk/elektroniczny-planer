@@ -105,6 +105,17 @@ async function fetchShoppingList() {
 function renderShoppingList() {
     shoppingListContainer.innerHTML = ""; // Czyścimy
 
+    //Sprawdzamy czy lista jest pusta
+    if (shoppingList.length === 0) {
+        shoppingListContainer.innerHTML = `
+            <div style="text-align: center; color: #aaa; margin-top: 20px;">
+                <i class="fa-solid fa-basket-shopping" style="font-size: 40px; margin-bottom: 10px;"></i>
+                <p>Twój koszyk jest pusty.<br>Dodaj coś pysznego!</p>
+            </div>
+        `;
+        return; // Kończymy funkcję, nie ma co rysować dalej
+    }
+
     shoppingList.forEach((item) => {
         const li = document.createElement("li");
         

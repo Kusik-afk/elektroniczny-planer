@@ -143,9 +143,27 @@ button.delete-btn:hover, #clear-meals-btn:hover {
 /* --- 6. LOGOWANIE (Centrowanie) --- */
 .login-container {
     width: 100%;
-    max-width: 400px;
+    max-width: 500px;
+    max-height: 600px;
     margin: 80px auto;
     text-align: center;
+}
+
+/*Ukrywanie elementów*/
+.hidden {
+    display: none !important;
+}
+
+/*Link przełączający*/
+.toggle-link {
+    color: var(--primary-color);
+    cursor: pointer;
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+.toggle-link:hover {
+    color: var(--primary-color);
 }
 
 /* --- 7. KALENDARZ --- */
